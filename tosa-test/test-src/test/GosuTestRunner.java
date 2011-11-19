@@ -17,6 +17,7 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -42,9 +43,9 @@ public class GosuTestRunner extends Runner {
       IType testType = TypeSystem.getByFullName(realTestName);
       _delegate = new BlockJUnit4ClassRunner(((IGosuClass) testType).getBackingClass());
     } catch (InstantiationException e) {
-      throw new InitializationError(e);
+      throw new InitializationError((List)Arrays.asList(e));
     } catch (IllegalAccessException e) {
-      throw new InitializationError(e);
+      throw new InitializationError((List)Arrays.asList(e));
     }
   }
 

@@ -1,5 +1,6 @@
 package tosa.loader;
 
+import gw.config.BaseService;
 import gw.fs.IFile;
 import gw.lang.reflect.IExtendedTypeLoader;
 import gw.lang.reflect.IType;
@@ -9,11 +10,10 @@ import gw.lang.reflect.module.IExecutionEnvironment;
 import gw.lang.reflect.module.IModule;
 import gw.util.GosuClassUtil;
 import gw.util.Pair;
-import gw.util.concurrent.LazyVar;
+import gw.util.concurrent.LockingLazyVar;
 import tosa.CachedDBObject;
 import tosa.api.IDBTable;
 import tosa.api.IDatabase;
-import tosa.dbmd.DBTableImpl;
 import tosa.dbmd.DatabaseImpl;
 import tosa.loader.data.DBData;
 import tosa.loader.data.IDBDataSource;
@@ -21,7 +21,13 @@ import tosa.loader.parser.DDLDBDataSource;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,25 +36,25 @@ import java.util.*;
  * Time: 10:35 PM
  * To change this template use File | Settings | File Templates.
  */
-public class DBTypeLoader implements IExtendedTypeLoader {
+public class DBTypeLoader extends BaseService implements IExtendedTypeLoader {
 
   private IModule _module;
 //  private Set<String> _initializedDrivers = new HashSet<String>();
 //  private Map<String, DBConnection> _connInfos = new HashMap<String, DBConnection>();
 
-  private LazyVar<Map<String, DatabaseImpl>> _typeDataByNamespace = new LazyVar<Map<String, DatabaseImpl>>() {
+  private LockingLazyVar<Map<String, DatabaseImpl>> _typeDataByNamespace = new LockingLazyVar<Map<String, DatabaseImpl>>() {
     protected Map<String, DatabaseImpl> init() { return initializeDBTypeData(); }
   };
 
-  private LazyVar<Map<String, SQLFileInfo>> _sqlFilesByName = new LazyVar<Map<String, SQLFileInfo>>() {
+  private LockingLazyVar<Map<String, SQLFileInfo>> _sqlFilesByName = new LockingLazyVar<Map<String, SQLFileInfo>>() {
     protected Map<String, SQLFileInfo> init() { return initializeSQLFiles(); }
   };
 
-  private LazyVar<Set<String>> _namespaces = new LazyVar<Set<String>>() {
+  private LockingLazyVar<Set<String>> _namespaces = new LockingLazyVar<Set<String>>() {
     protected Set<String> init() { return initializeNamespaces(); }
   };
 
-  private LazyVar<Set<String>> _typeNames = new LazyVar<Set<String>>() {
+  private LockingLazyVar<Set<String>> _typeNames = new LockingLazyVar<Set<String>>() {
     protected Set<String> init() { return initializeTypeNames(); }
   };
 
@@ -64,16 +70,6 @@ public class DBTypeLoader implements IExtendedTypeLoader {
   @Override
   public IModule getModule() {
     return _module;
-  }
-
-  @Override
-  public IType getIntrinsicType(Class javaClass) {
-    return null;
-  }
-
-  @Override
-  public IType getIntrinsicType(IJavaClassInfo javaClassInfo) {
-    return null;
   }
 
   @Override
@@ -120,7 +116,8 @@ public class DBTypeLoader implements IExtendedTypeLoader {
 
   @Override
   public URL getResource(String name) {
-    return _module.getResource(name);
+    throw new RuntimeException("Not supported");
+//    return _module.getResource(name);
   }
 
   @Override
@@ -144,6 +141,11 @@ public class DBTypeLoader implements IExtendedTypeLoader {
   }
 
   @Override
+  public boolean handlesNonPrefixLoads() {
+    return true;
+  }
+
+  @Override
   public boolean isNamespaceOfTypeHandled(String fullyQualifiedTypeName) {
     int lastDot = fullyQualifiedTypeName.lastIndexOf('.');
     if (lastDot == -1) {
@@ -153,8 +155,8 @@ public class DBTypeLoader implements IExtendedTypeLoader {
   }
 
   @Override
-  public List<Throwable> getInitializationErrors() {
-    return Collections.emptyList();
+  public List<IType> refreshedFile(IFile iFile) {
+    return null;
   }
 
   @Override
@@ -180,7 +182,7 @@ public class DBTypeLoader implements IExtendedTypeLoader {
 
   private Map<String, SQLFileInfo> initializeSQLFiles() {
     HashMap<String, SQLFileInfo> results = new HashMap<String, SQLFileInfo>();
-    for (Pair<String, IFile> pair : _module.getResourceAccess().findAllFilesByExtension(".sql")) {
+    for (Pair<String, IFile> pair : _module.getFileRepository().findAllFilesByExtension(".sql")) {
       String fileName = pair.getFirst();
       IFile sqlFil = pair.getSecond();
       for (DatabaseImpl db : _typeDataByNamespace.get().values()) {

@@ -7,8 +7,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gosu" level="project" />
-    <orderEntry type="library" name="JUnit" level="project" />
     <orderEntry type="library" name="DBCP" level="project" />
     <orderEntry type="library" name="SLF4J" level="project" />
   </component>

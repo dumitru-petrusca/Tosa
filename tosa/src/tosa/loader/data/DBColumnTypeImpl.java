@@ -122,13 +122,13 @@ public class DBColumnTypeImpl implements IDBColumnType {
         return IJavaType.BIGDECIMAL;
 
       case Types.CHAR:
-        return IJavaType.STRING;
+        return JavaTypes.STRING();
 
       case Types.VARCHAR:
-        return IJavaType.STRING;
+        return JavaTypes.STRING();
 
       case Types.LONGVARCHAR:
-        return IJavaType.STRING;
+        return JavaTypes.STRING();
 
       case Types.BOOLEAN:
         return IJavaType.BOOLEAN;
@@ -155,33 +155,33 @@ public class DBColumnTypeImpl implements IDBColumnType {
         return IJavaType.pVOID;
 
       case Types.OTHER:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.JAVA_OBJECT:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.DISTINCT:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.STRUCT:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.ARRAY:
-        return IJavaType.OBJECT.getArrayType();
+        return JavaTypes.OBJECT().getArrayType();
 
       case Types.BLOB:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.CLOB:
-        return IJavaType.STRING;
+        return JavaTypes.STRING();
 
       case Types.REF:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
       case Types.DATALINK:
-        return IJavaType.OBJECT;
+        return JavaTypes.OBJECT();
 
     }
-    return IJavaType.OBJECT;
+    return JavaTypes.OBJECT();
   }*/
 }

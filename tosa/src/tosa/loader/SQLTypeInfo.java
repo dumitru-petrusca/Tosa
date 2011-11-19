@@ -3,6 +3,7 @@ package tosa.loader;
 import gw.lang.parser.ISymbol;
 import gw.lang.reflect.*;
 import gw.lang.reflect.java.IJavaType;
+import gw.lang.reflect.java.JavaTypes;
 import gw.util.GosuExceptionUtil;
 import tosa.db.execution.QueryExecutor;
 import tosa.loader.parser.SQLParseException;
@@ -32,7 +33,7 @@ public class SQLTypeInfo extends BaseTypeInfo {
     _methods.add(new MethodInfoBuilder().withName("select")
       .withStatic()
       .withParameters(queryParameters)
-      .withReturnType(IJavaType.ITERABLE.getParameterizedType(selectReturnType))
+      .withReturnType(JavaTypes.ITERABLE().getParameterizedType(selectReturnType))
       .withCallHandler(new IMethodCallHandler() {
         @Override
         public Object handleCall(Object ctx, Object... args) {
@@ -47,7 +48,7 @@ public class SQLTypeInfo extends BaseTypeInfo {
       _methods.add(new MethodInfoBuilder().withName("selectAsStruct")
         .withStatic()
         .withParameters(queryParameters)
-        .withReturnType(IJavaType.ITERABLE.getParameterizedType(structReturnType))
+        .withReturnType(JavaTypes.ITERABLE().getParameterizedType(structReturnType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -145,7 +146,7 @@ public class SQLTypeInfo extends BaseTypeInfo {
   }
 
   private IType getMapType() {
-    return IJavaType.MAP.getGenericType().getParameterizedType(IJavaType.STRING, IJavaType.OBJECT);
+    return JavaTypes.MAP().getGenericType().getParameterizedType(JavaTypes.STRING(), JavaTypes.OBJECT());
   }
 
   private Object constructResultElement(ResultSet resultSet, IType returnType) {

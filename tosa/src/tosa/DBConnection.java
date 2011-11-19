@@ -1,5 +1,8 @@
 package tosa;
 
+import gw.lang.reflect.IDefaultTypeLoader;
+import gw.lang.reflect.ITypeLoader;
+import gw.lang.reflect.module.IModule;
 import gw.util.GosuExceptionUtil;
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
@@ -17,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,11 +109,16 @@ public class DBConnection implements IDBConnection {
 
   private DataSource setupDataSource(String connectURI) {
     // Ensure the JDBC driver class is loaded
-    try {
-      Class.forName(getDriverName(connectURI), true, _typeLoader.getModule().getClassLoader());
-    } catch (ClassNotFoundException e) {
-      throw GosuExceptionUtil.forceThrow(e);
-    }
+
+    final IModule module = _typeLoader.getModule();
+    final List<? extends ITypeLoader> typeLoaders = module.getTypeLoaders(IDefaultTypeLoader.class);
+    ((IDefaultTypeLoader)typeLoaders.get(0)).loadClass(getDriverName(connectURI));
+
+//    try {
+//      Class.forName(getDriverName(connectURI), true, ((IModule) module).getClassLoader());
+//    } catch (ClassNotFoundException e) {
+//      throw GosuExceptionUtil.forceThrow(e);
+//    }
 
     GenericObjectPool connectionPool = new GenericObjectPool(null);
     connectionPool.setMinIdle( 1 );

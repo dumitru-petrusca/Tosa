@@ -4,7 +4,8 @@ import gw.config.CommonServices;
 import gw.lang.reflect.*;
 import gw.lang.reflect.features.PropertyReference;
 import gw.lang.reflect.java.IJavaType;
-import gw.util.concurrent.LazyVar;
+import gw.lang.reflect.java.JavaTypes;
+import gw.util.concurrent.LockingLazyVar;
 import tosa.CachedDBObject;
 import tosa.api.IDBArray;
 import tosa.api.IDBColumn;
@@ -32,7 +33,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
   public static final String ID_COLUMN = "id";
   private Map<String, IPropertyInfo> _properties;
   private List<IMethodInfo> _methods;
-  private LazyVar<Map<String, IPropertyInfo>> _arrayProperties = new LazyVar<Map<String, IPropertyInfo>>() {
+  private LockingLazyVar<Map<String, IPropertyInfo>> _arrayProperties = new LockingLazyVar<Map<String, IPropertyInfo>>() {
     @Override
     protected Map<String, IPropertyInfo> init() {
       return makeArrayProperties();
@@ -59,7 +60,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
     _queryExecutor = new QueryExecutor();
 
     _getMethod = new MethodInfoBuilder().withName("fromID").withStatic()
-        .withParameters(new ParameterInfoBuilder().withName(ID_COLUMN).withType(IJavaType.pLONG))
+        .withParameters(new ParameterInfoBuilder().withName(ID_COLUMN).withType(JavaTypes.pLONG()))
         .withReturnType(dbType)
         .withCallHandler(new IMethodCallHandler() {
           @Override
@@ -72,7 +73,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
           }
         }).build(this);
     _idMethod = new MethodInfoBuilder().withName("toID")
-        .withReturnType(IJavaType.pLONG)
+        .withReturnType(JavaTypes.pLONG())
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -104,8 +105,8 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
           }
         }).build(this);
     _countWithSqlMethod = new MethodInfoBuilder().withName("countWithSql").withStatic()
-        .withParameters(new ParameterInfoBuilder().withName("sql").withType(IJavaType.STRING))
-        .withReturnType(IJavaType.pINT)
+        .withParameters(new ParameterInfoBuilder().withName("sql").withType(JavaTypes.STRING()))
+        .withReturnType(JavaTypes.pINT())
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -122,7 +123,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
         }).build(this);
     _countMethod = new MethodInfoBuilder().withName("count").withStatic()
         .withParameters(new ParameterInfoBuilder().withName("template").withType(dbType))
-        .withReturnType(IJavaType.pINT)
+        .withReturnType(JavaTypes.pINT())
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -137,8 +138,8 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
           }
         }).build(this);
     _findWithSqlMethod = new MethodInfoBuilder().withName("findWithSql").withStatic()
-        .withParameters(new ParameterInfoBuilder().withName("sql").withType(IJavaType.STRING))
-        .withReturnType(IJavaType.LIST.getGenericType().getParameterizedType(dbType))
+        .withParameters(new ParameterInfoBuilder().withName("sql").withType(JavaTypes.STRING()))
+        .withReturnType(JavaTypes.LIST().getGenericType().getParameterizedType(dbType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -155,7 +156,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
         }).build(this);
     _findMethod = new MethodInfoBuilder().withName("find").withStatic()
         .withParameters(new ParameterInfoBuilder().withName("template").withType(dbType))
-        .withReturnType(IJavaType.LIST.getGenericType().getParameterizedType(dbType))
+        .withReturnType(JavaTypes.LIST().getGenericType().getParameterizedType(dbType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -175,9 +176,9 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
         }).build(this);
     _findSortedMethod = new MethodInfoBuilder().withName("findSorted").withStatic()
         .withParameters(new ParameterInfoBuilder().withName("template").withType(dbType),
-            new ParameterInfoBuilder().withName("sortProperty").withType(TypeSystem.get(PropertyReference.class).getParameterizedType(dbType, IJavaType.OBJECT)),
-            new ParameterInfoBuilder().withName("ascending").withType(IJavaType.pBOOLEAN))
-        .withReturnType(IJavaType.LIST.getGenericType().getParameterizedType(dbType))
+            new ParameterInfoBuilder().withName("sortProperty").withType(TypeSystem.get(PropertyReference.class).getParameterizedType(dbType, JavaTypes.OBJECT())),
+            new ParameterInfoBuilder().withName("ascending").withType(JavaTypes.pBOOLEAN()))
+        .withReturnType(JavaTypes.LIST().getGenericType().getParameterizedType(dbType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -197,9 +198,9 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
         }).build(this);
     _findPagedMethod = new MethodInfoBuilder().withName("findPaged").withStatic()
         .withParameters(new ParameterInfoBuilder().withName("template").withType(dbType),
-            new ParameterInfoBuilder().withName("pageSize").withType(IJavaType.pINT),
-            new ParameterInfoBuilder().withName("offset").withType(IJavaType.pINT))
-        .withReturnType(IJavaType.LIST.getGenericType().getParameterizedType(dbType))
+            new ParameterInfoBuilder().withName("pageSize").withType(JavaTypes.pINT()),
+            new ParameterInfoBuilder().withName("offset").withType(JavaTypes.pINT()))
+        .withReturnType(JavaTypes.LIST().getGenericType().getParameterizedType(dbType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -219,11 +220,11 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
         }).build(this);
     _findSortedPagedMethod = new MethodInfoBuilder().withName("findSortedPaged").withStatic()
         .withParameters(new ParameterInfoBuilder().withName("template").withType(dbType),
-            new ParameterInfoBuilder().withName("sortProperty").withType(TypeSystem.get(PropertyReference.class).getParameterizedType(dbType, IJavaType.OBJECT)),
-            new ParameterInfoBuilder().withName("ascending").withType(IJavaType.pBOOLEAN),
-            new ParameterInfoBuilder().withName("pageSize").withType(IJavaType.pINT),
-            new ParameterInfoBuilder().withName("offset").withType(IJavaType.pINT))
-        .withReturnType(IJavaType.LIST.getGenericType().getParameterizedType(dbType))
+            new ParameterInfoBuilder().withName("sortProperty").withType(TypeSystem.get(PropertyReference.class).getParameterizedType(dbType, JavaTypes.OBJECT())),
+            new ParameterInfoBuilder().withName("ascending").withType(JavaTypes.pBOOLEAN()),
+            new ParameterInfoBuilder().withName("pageSize").withType(JavaTypes.pINT()),
+            new ParameterInfoBuilder().withName("offset").withType(JavaTypes.pINT()))
+        .withReturnType(JavaTypes.LIST().getGenericType().getParameterizedType(dbType))
         .withCallHandler(new IMethodCallHandler() {
           @Override
           public Object handleCall(Object ctx, Object... args) {
@@ -242,7 +243,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
           }
         }).build(this);
 
-    _newProperty = new PropertyInfoBuilder().withName("_New").withType(IJavaType.pBOOLEAN)
+    _newProperty = new PropertyInfoBuilder().withName("_New").withType(JavaTypes.pBOOLEAN())
         .withWritable(false).withAccessor(new IPropertyAccessor() {
           @Override
           public void setValue(Object ctx, Object value) {
@@ -318,7 +319,7 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
 
   @Override
   public IMethodInfo getMethod(CharSequence methodName, IType... params) {
-    if ("fromID".equals(methodName) && params != null && params.length == 1 && params[0].equals(IJavaType.pLONG)) {
+    if ("fromID".equals(methodName) && params != null && params.length == 1 && params[0].equals(JavaTypes.pLONG())) {
       return _getMethod;
     }
     if ("toID".equals(methodName) && (params == null || params.length == 0)) {
@@ -330,25 +331,25 @@ public class DBTypeInfo extends BaseTypeInfo implements ITypeInfo {
     if ("delete".equals(methodName) && (params == null || params.length == 0)) {
       return _deleteMethod;
     }
-    if ("findWithSql".equals(methodName) && params != null && params.length == 1 && params[0].equals(IJavaType.STRING)) {
+    if ("findWithSql".equals(methodName) && params != null && params.length == 1 && params[0].equals(JavaTypes.STRING())) {
       return _findWithSqlMethod;
     }
     if ("find".equals(methodName) && params != null && params.length == 1 && params[0].equals(getOwnersType())) {
       return _findMethod;
     }
-    if ("findSorted".equals(methodName) && params != null && params.length == 3 && params[0].equals(getOwnersType()) && TypeSystem.get(PropertyReference.class).isAssignableFrom(params[1]) && params[2].equals(IJavaType.pBOOLEAN)) {
+    if ("findSorted".equals(methodName) && params != null && params.length == 3 && params[0].equals(getOwnersType()) && TypeSystem.get(PropertyReference.class).isAssignableFrom(params[1]) && params[2].equals(JavaTypes.pBOOLEAN())) {
       return _findSortedMethod;
     }
-    if ("findPaged".equals(methodName) && params != null && params.length == 3 && params[0].equals(getOwnersType()) && params[1].equals(IJavaType.pINT) && params[2].equals(IJavaType.pINT)) {
+    if ("findPaged".equals(methodName) && params != null && params.length == 3 && params[0].equals(getOwnersType()) && params[1].equals(JavaTypes.pINT()) && params[2].equals(JavaTypes.pINT())) {
       return _findPagedMethod;
     }
-    if ("findSortedPaged".equals(methodName) && params != null && params.length == 5 && params[0].equals(getOwnersType()) && TypeSystem.get(PropertyReference.class).isAssignableFrom(params[1]) && params[2].equals(IJavaType.pBOOLEAN) && params[3].equals(IJavaType.pINT) && params[4].equals(IJavaType.pINT)) {
+    if ("findSortedPaged".equals(methodName) && params != null && params.length == 5 && params[0].equals(getOwnersType()) && TypeSystem.get(PropertyReference.class).isAssignableFrom(params[1]) && params[2].equals(JavaTypes.pBOOLEAN()) && params[3].equals(JavaTypes.pINT()) && params[4].equals(JavaTypes.pINT())) {
       return _findSortedPagedMethod;
     }
     if ("count".equals(methodName) && params != null && params.length == 1 && params[0].equals(getOwnersType())) {
       return _countMethod;
     }
-    if ("countWithSql".equals(methodName) && params != null && params.length == 1 && params[0].equals(IJavaType.STRING)) {
+    if ("countWithSql".equals(methodName) && params != null && params.length == 1 && params[0].equals(JavaTypes.STRING())) {
       return _countWithSqlMethod;
     }
     return null;
